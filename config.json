@@ -1,0 +1,17 @@
+[
+    {
+        "exchange": "NYSE",
+        "country": "US",
+        "src_url": "https://raw.githubusercontent.com/rreichel3/US-Stock-Symbols/main/nyse/nyse_full_tickers.json"
+    },
+    {
+        "exchange": "NASDAQ",
+        "country": "US",
+        "src_url": "https://raw.githubusercontent.com/rreichel3/US-Stock-Symbols/main/nasdaq/nasdaq_full_tickers.json"
+    },
+    {
+        "exchange": "AMEX",
+        "country": "US",
+        "src_url": "https://raw.githubusercontent.com/rreichel3/US-Stock-Symbols/main/amex/amex_full_tickers.json"
+    }
+]
