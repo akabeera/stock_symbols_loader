@@ -45,7 +45,7 @@ if __name__=="__main__":
     utc = pytz.UTC
 
     if not mongodb.collection_exists(COLLECTION_NAME):
-        mongodb.create_collection(collection_name=COLLECTION_NAME, unique_indexes=[[("symbol", 1), ("exchange", 1)], ("id")])
+        mongodb.create_collection(collection_name=COLLECTION_NAME, unique_indexes=[["symbol", "exchange"], ["id"]])
 
     with open(CONFIG_FILE) as f:
         configs = json.load(f)
@@ -58,23 +58,42 @@ if __name__=="__main__":
             print(f"fetching symbols from exchange: {exchange}, src_url: {src_url}")
             symbols_json = fetch_json(src_url)
 
+            today_date = datetime.now().strftime('%Y-%m-%d')
+            file_path = f"./archive/{today_date}_{exchange}.json"
+
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, "w") as file:
+                json.dump(symbols_json, file, indent=4)
+
             symbols_documents = []
             if symbols_json:
                 for symbol_json in symbols_json:
+
+                    symbol = str(symbol_json["symbol"]).upper()
+                    # query = {
+                    #     "symbol": symbol,
+                    #     "exchange": exchange
+                    # }
+                    # existing_symbols = mongodb.query(COLLECTION_NAME, filter_dict=query)
+                    # if len(existing_symbols) > 0:
+                    #     continue
+
                     symbol_document = {
                         "id": str(uuid.uuid4()),
-                        "symbol": str(symbol_json["symbol"]).upper(),
+                        "symbol": symbol,
                         "name": symbol_json["name"],
                         "country": country,
                         "exchange": exchange,
                         "industry": symbol_json["industry"],
                         "sector": symbol_json["sector"],
-                        "date_created": datetime.now(utc)
+                        "createAt": datetime.now(utc),
+                        "updatedAt": datetime.now(utc)
                     }
 
                     symbols_documents.append(symbol_document)
 
             insertion_results = mongodb.insert_many(collection=COLLECTION_NAME, documents=symbols_documents, ordered=False)
-            print(f"insertion results: {insertion_results.inserted_ids}")
+            if insertion_results:
+                print(f"insertion results: {insertion_results.inserted_ids}")
 
                 
